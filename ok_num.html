@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <meta name="viewport"
+        content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>假量</title>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" type="text/css" href="css/app.css" />
+    <link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+    <link rel="stylesheet" href="css/mui.ext.dtpicker.css">
+   <!-- <link rel="stylesheet" href="mui.ext_.dtpicker_/mui.ext.dtpicker.css"> -->
+    <style>
+        html,
+        body,
+        .mui-content {
+            height: 0px;
+            margin: 0px;
+            background-color: #efeff4;
+            font-size: 21px
+        }
+
+        h5.mui-content-padded {
+            margin-left: 3px;
+            margin-top: 20px !important;
+        }
+
+        h5.mui-content-padded:first-child {
+            margin-top: 12px !important;
+        }
+
+        .mui-btn {
+            font-size: 16px;
+            padding: 8px;
+            margin: 3px;
+        }
+
+        .ui-alert {
+            text-align: center;
+            padding: 20px 10px;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+        }
+
+        span.tq {
+            display: inline-block;
+            background: #0080ff;
+            padding: 5px;
+            color: #fff;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        span.tq2 {
+            display: inline-block;
+            background: #fff;
+            padding: 5px;
+            color: #000;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        div#btn_start {
+            display: inline-block;
+            background: #0080ff;
+            /* padding: 5px; */
+            color: #fff;
+            border-radius: 5px;
+            margin-top: 10%;
+            width: 100%;
+            text-align: center;
+            height: 36px;
+            line-height: 36px;
+        }
+        header {
+            background: #0080ff;
+            color: #fff;
+            padding: 12px;
+            text-align: center;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .mui-backdrop {
+            position: fixed;
+            top: 35%;
+            /* right: 0; */
+            /* bottom: 0; */
+            left: 50%;
+            z-index: 998;
+            background-color: rgba(0,0,0,.3);
+            display: none;
+            width: 50%;
+            height: 100px;
+            margin-left: -25%;
+            border-radius: 10px;
+        }
+        .loading{
+            position: absolute;
+            top: 40%;
+            /* right: 0; */
+            /* bottom: 0; */
+            left: 50%;
+            text-align: center;
+            z-index: 998;
+            /* background-color: rgba(0,0,0,.3); */
+            display: none;
+            width: 50%;
+            height: 100px;
+            margin-left: -25%;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 24px;
+        }
+        .info_txt {
+			margin-top: 8%;
+			text-align: left;
+		}
+    </style>
+</head>
+
+<body>
+    <header>
+        计算一段时间内OKEx内SHOW的交易数据
+    </header>
+    <div class="mui-content">
+        <div class="mui-content-padded">
+            <button id='demo5' data-options='{"beginYear":2018,"beginMonth":7,"beginDay":1,"beginHours":0,"beginMinutes":0,"endYear":2020}' class="btn mui-btn mui-btn-block"
+                style="background: #ffeb3ba6;">开始时间
+                </button>
+            <div id='result' class="ui-alert"></div>
+            <button id='demo6' data-options='{}' class="btn mui-btn mui-btn-block"
+                style="background: #ffeb3ba6;">结束时间
+                </button>
+            <div id='result6' class="ui-alert"></div>
+            <div class="show_d">
+                <span class="tq">总成交量</span>
+                <span class="tq2" id="all_show_1"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">真实成交量</span>
+                <span class="tq2" id="all_show_2"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">假成交量</span>
+                <span class="tq2" id="all_show_22"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">真实成交量占比</span>
+                <span class="tq2" id="all_show_3"></span>
+            </div>
+<br>
+            <div class="show_d">
+                <span class="tq">总成交金额</span>
+                <span class="tq2" id="all_show_5"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">真实成交金额</span>
+                <span class="tq2" id="all_show_6"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">假成交金额</span>
+                <span class="tq2" id="all_show_7"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">真实成交金额占比</span>
+                <span class="tq2" id="all_show_8"></span>
+            </div>
+            <div class="show_d">
+                <span class="tq">真实成交均价</span>
+                <span class="tq2" id="all_show_9"></span>
+            </div>
+            <div class="mui-backdrop"></div>
+            <div id="loading" class="loading">
+                    正在计算中
+            </div>
+            <div class="btn_start" id="btn_start" onclick="show_time()">
+                计算
+            </div>
+            <div class="info_txt">
+                    计算一段交易时间内，okex内show的真实成交量以及真实成交量比例。
+                    可计算时间段：2018.07.01～至今
+            </div>
+        </div>
+
+    </div>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/mui.picker.min.js"></script>
+    <!-- <script src="mui.ext_.dtpicker_/mui.ext.dtpicker.js"></script> -->
+    <script src="js/mui.ext.dtpicker.js"></script>
+    <script>
+        (function ($) {
+            $.init();
+
+            var result = $('#result')[0];
+            var btns = $('#demo5');
+            var btns6 = $('#demo6');
+            var result6 = $('#result6');
+            btns.each(function (i, btn) {
+                btn.addEventListener('tap', function () {
+                    var _self = this;
+                    if (_self.picker) {
+                        _self.picker.show(function (rs) {
+                            result.innerHTML = '开始时间: ' + '<i>' + rs.text + '</i>';
+                            localStorage.flag3 = true;
+                            _self.picker.dispose();
+                            _self.picker = null;
+                        });
+                    } else {
+                        var optionsJson = this.getAttribute('data-options') || "{}";
+                        var options = JSON.parse(optionsJson);
+                        var id = this.getAttribute('id');
+
+                        _self.picker = new $.DtPicker(options);
+                        _self.picker.show(function (rs) {
+
+                            console.log(rs.text)
+                            var date = rs.text;
+                            date = date.substring(0, 19);
+                            date = date.replace(/-/g, '/');
+                            var timestamp = new Date(date).getTime() / 1000;
+                            localStorage.startTime = timestamp
+                            result.innerHTML = '' + '<i>' + rs.text + '</i>' +
+                                '   至';
+                            // btnSub.removeAttribute("disabled");
+                            // btnSub.style.background = '#2196F3';
+                            // btnSub.innerHTML = '提交';
+
+                            _self.picker.dispose();
+                            _self.picker = null;
+                        });
+                    }
+
+                }, false);
+            });
+
+            btns6.each(function (i, btn) {
+                btn.addEventListener('tap', function () {
+                    var _self = this;
+                    if (_self.picker) {
+                        _self.picker.show(function (rs) {
+                            document.getElementById("result6").innerHTML = '' +
+                                '<i>' + rs.text + '</i>';
+                            localStorage.flag3 = true;
+                            _self.picker.dispose();
+                            _self.picker = null;
+                        });
+                    } else {
+                        var optionsJson = this.getAttribute('data-options') || '{}';
+                        var options = JSON.parse(optionsJson);
+                        var id = this.getAttribute('id');
+
+                        _self.picker = new $.DtPicker(options);
+                        _self.picker.show(function (rs) {
+
+                            console.log(rs.text)
+                            var date = rs.text;
+                            date = date.substring(0, 19);
+                            date = date.replace(/-/g, '/');
+                            var timestamp = new Date(date).getTime() / 1000;
+                            localStorage.endTime = timestamp
+                            document.getElementById("result6").innerHTML = '' +
+                                '<i>' + rs.text + '</i>' +
+                                '';
+                            // btnSub.removeAttribute("disabled");
+                            // btnSub.style.background = '#2196F3';
+                            // btnSub.innerHTML = '提交';
+
+                            _self.picker.dispose();
+                            _self.picker = null;
+                        });
+                    }
+
+                }, false);
+            });
+        })(mui);
+        // window.onload = function () {
+        //     show_time()
+        // }
+
+        function show_time() {
+            $.ajax({
+                type: "get",
+                url: "http://trendapi.xiubi.work/okexdealdata/" + localStorage.startTime + '/' + localStorage
+                    .endTime,
+                dataType: 'json',
+                beforeSend:function(XMLHttpRequest){
+                    //alert('远程调用开始...');
+                    $("#loading").show();
+                    $(".mui-backdrop").show();
+                },
+                // async: true,
+                success: function (res) {
+                    //console.log(res)
+
+                    $("#loading").hide();
+                    $(".mui-backdrop").hide();
+                    // if(res.okex_origin_deal_data ===""|| res.okex_origin_deal_data === null || res.okex_origin_deal_data=== undefined){
+                    //     mui.alert("数据为空", "数据提示")
+                    // }
+                    if($.isEmptyObject(res.okex_origin_deal_data)){
+                        mui.alert("请重新选择时间段", "无交易数据")
+                    }
+
+                    var show_all = [];
+                    var show_real_all = [];
+                    var show_all_01 = [];
+                    var show_real_all_01 = [];
+                    var arr1 = res.okex_origin_deal_data.show_usdt;
+                    var arr2 = res.okex_real_deal_data.show_usdt;
+                    $.each(arr1, function (i, val) {
+                        //console.log(arr1[i][2]);
+                        show_all.push(Number(arr1[i][2]))
+                        show_all_01.push(Number(arr1[i][2]*arr1[i][1]))
+                    })
+                    //console.log(show_all)
+                    $.each(arr2, function (i, val) {
+                        console.log(arr2[i][2]);
+                        show_real_all.push(Number(arr2[i][2]))
+                        show_real_all_01.push(arr2[i][2]*arr2[i][1])
+                        // console.table(arr1[i][2]+'--------------')
+                        // console.table(arr1[i][1]+'--------------')
+                        // console.log(arr1[i][2]+'--------------')
+                        // console.log(arr1[i][1]+'--------------')
+                    })
+                    console.table(show_real_all_01)
+                    function sum(arr) {
+                        var s = 0;
+                        for (var i = arr.length - 1; i >= 0; i--) {
+                            s += arr[i];
+                        }
+                        return s;
+                    }
+                    function GetPercent(num, total) {
+                        num = parseFloat(num);
+                        total = parseFloat(total);
+                        if (isNaN(num) || isNaN(total)) {
+                            return "-";
+                        }
+                        return total <= 0 ? "0%" : (Math.round(num / total * 10000) / 100.00)+"%";
+                    }
+                    function toThousands(num) {
+                        var result = [ ], counter = 0;
+                        num = (num || 0).toString().split('');
+                        for (var i = num.length - 1; i >= 0; i--) {
+                            counter++;
+                            result.unshift(num[i]);
+                            if (!(counter % 3) && i != 0) { result.unshift(','); }
+                        }
+                        return result.join('');
+                    }
+                    //console.log(sum(show_all).toFixed(1))
+                    var real = parseInt(sum(show_real_all))
+                    var origin = parseInt(sum(show_all))
+
+                    var real_01 = parseInt(sum(show_real_all_01))
+                    var origin_01 = parseInt(sum(show_all_01))
+                    $('#all_show_1').html(toThousands(Number(origin)) +'  show');
+                    $('#all_show_2').html(toThousands(Number(real))+'  show');
+                    $('#all_show_22').html(toThousands(Number(origin-real))+'  show');
+                    $('#all_show_3').html(GetPercent(real, Number(origin))+'  ');
+
+                    $('#all_show_5').html(toThousands(Number(origin_01)) +'  $');
+                    $('#all_show_6').html(toThousands(Number(real_01)) +'  $');
+                    $('#all_show_7').html(toThousands(Number(origin_01-real_01)) +'  $');
+                    $('#all_show_8').html(GetPercent(real_01, Number(origin_01))+'  ');
+                    $('#all_show_9').html((real_01/real).toFixed(6) +'  $');
+                },
+                error: function (error) {
+                    //mui.alert("请勿重复提交", "提交重复")
+                    console.log(error)
+                },
+                complete : function(XMLHttpRequest,status){ //请求完成后最终执行参数
+            　　　　if(status =='timeout' || status =='error'){//超时,status还有success,error等值的情况
+                        $("#loading").hide();
+                        $(".mui-backdrop").hide();
+                　　　　　mui.alert("请重新选择时间段", "无交易数据")
+            　　　　}
+            　　}
+            });
+        }
+    </script>
+</body>
+
+</html>

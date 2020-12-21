@@ -1,0 +1,896 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>内部scan</title>
+	<base target="_blank">
+	<link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+	<!-- <link rel="stylesheet" href="http://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css"> -->
+	<link href="./css/dataTables.bootstrap.min.css" rel="stylesheet">
+	<link href="./css/daterangepicker.css" rel="stylesheet" media="screen">
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<script src="./js/jquery.dataTables.min.js"></script>
+	<script src="./js/dataTables.bootstrap.min.js"></script>
+	<script src="./js/moment.min.js"></script>
+	<script src="./js/daterangepicker.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="./echarts.js"></script>
+
+	<style>
+		input[type="text"] {
+			border: 1px solid red;
+		}
+
+		.classA:hover {
+			text-decoration: none;
+			cursor: pointer;
+		}
+
+		td.highlight {
+			background-color: red !important;
+		}
+
+		tr.am-primary {
+			background-color: yellow !important;
+		}
+
+		.showul label {
+			display: block;
+			margin: 3px 0;
+		}
+
+		.showul {
+			padding: 10px 15px;
+		}
+
+		.graph i {
+			display: inline-block;
+			width: 15px;
+			height: 15px;
+		}
+
+		ul.showul li:not(:last-child) {
+			border-bottom: 1px dashed #ccc;
+		}
+
+		div#loading {
+			width: 500px;
+			font-size: 36px;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			margin-left: -250px;
+			text-align: center;
+			background: #0000006b;
+			border-radius: 10px;
+			color: #fff;
+		}
+		.selector{
+			display: none
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="container">
+		<div class="well">
+			<form class="form-inline" action="javascript:void(0);" id="search_form" role="form">
+				<!-- <div class="input-group" id="id_search_date" style="width:41%">
+					<span>按开站时间查询：</span>
+					<span class="add-on input-group-addon">
+						<i class="glyphicon glyphicon-calendar fa fa-calendar" style="font-size: 18px"></i>
+					</span>
+					<input type="text" readonly style="width:220px" name="reportrange" id="reportrange" class="form-control" value="" />
+					&nbsp;&nbsp;
+					<button type="button" id="reset" class="btn-sm btn-primary">复位</button>
+				</div> -->
+				<div class="form-group">
+					<label class="sr-only" for="key_value">关键字</label>
+					<input type="text" class="form-control fa fa-dashboard" id="key_value" name="kw" value=""
+						placeholder="请输入关键字">
+				</div>
+
+				<button type="submit" id="search_submit" class="btn btn-success">搜索</button>
+				<!-- <button type="btn" class="btn btn-success" onclick="myrefresh()">刷新</button> -->
+				<!-- <button type="btn" id="res_data" class="btn btn-success">更新show数据</button> -->
+				<div
+					style="position:relative; z-index:9999; height:100%; width: 200px; float: right; margin-left: 12px;">
+					<!-- <button class="btn btn-default showcol">列段显示/隐藏</button> -->
+					<ul class="showul"
+						style=" list-style:none;display:none; position:absolute; left:118px; top:10px; background:#FFFFFF; border:1px solid #ccc; width:106px;">
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="2" />姓名</label></li>
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="4" />age</label></li>
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="5" />性别</label></li>
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="6" />薪水</label></li>
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="7" />地址</label></li>
+						<li><label><input type="checkbox" class="toggle-vis" checked data-column="8" />备注</label></li>
+					</ul>
+				</div>
+			</form>
+		</div>
+		<table id="DataTable" class="display table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th><input type="checkbox" name="checklist" id="checkAll"></th>
+					<th>排行</th>
+					<th>地址</th>
+					<th>备注</th>
+					<th>类别</th>
+					<th>数量</th>
+					<th>占比</th>
+					<th>操作</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="txt_percent" width="200px" height="60px"
+		style="text-align:center;font-size:36px;color: #FF5722;margin-top: 60px;">
+
+	</div>
+	<div id="_top" style="width:750px;height: 400px;margin-top:100px;margin-left: 300px;">
+	</div>
+	<div id="loading"></div>
+	<script>
+		function myrefresh() {
+			window.location.reload();
+		}
+
+
+		$('#res_data').click(function test() {
+
+			if (confirm("此功能为：重新抓取Etherscan的show持仓排行榜最新数据,预计3-5分钟")) {
+				$.ajax({
+				type: 'get',
+				url: './test.php',
+				beforeSend: function (XMLHttpRequest) {
+					$("#loading").html("数据正在更新中......");
+				},
+				success: function (data) {
+					$("#loading").empty();
+					alert('更新成功')
+					// console.log(data)
+				},
+				error: function (data) {
+					console.log(data)
+				}
+			});
+			} else {
+				return false;
+			}
+		});
+		$(function () {
+			charts();
+			/******初始化DataTable*****************************************************************************/
+			var table = $('#DataTable').DataTable({
+				"processing": true, //显示加载信息
+				"serverSide": true, //开启服务器模式
+				"searching": true, //开启搜索功能
+
+				"autoWidth": true, //让Datatables自动计算宽度
+				"searching": false, //开启全局搜索功能
+				"lengthMenu": [30, 40, 50, 60], //改变每页显示条数列表的选项
+				"pagingType": "full_numbers", //分页按钮种类显示选项
+				"order": [
+					[1, "asc"]
+				], //表格初始化排序【全选框不用排序】
+				"language": {
+					"processing": "玩命加载中...",
+					"lengthMenu": "显示 _MENU_ 项结果",
+					"zeroRecords": "没有匹配结果",
+					"search": "搜索:",
+					"url": "",
+					"emptyTable": "表中数据为空",
+					"loadingRecords": "正在加载数据...",
+
+					//下面三者构成了总体的左下角的内容。
+					"info": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+					"infoEmpty": "显示第 0 至 0 项结果，共 0 项",
+					"infoFiltered": "(由 _MAX_ 项结果过滤)",
+					//"infoPostFix": "",
+
+					"paginate": {
+						"first": "首页",
+						"previous": "上一页",
+						"next": "下一页",
+						"last": "尾页"
+					},
+				},
+
+				"ajax": {
+					"url": "./serverTo.php",
+					"type": "POST",
+					"data": { //添加额外的参数发送到服务器(可以用作搜索条件)
+						extra_search: 3,
+						date: $("#reportrange").val(),
+						//createtime:1,
+					},
+					/*"data": function ( d ) {		//添加额外的参数发送到服务器(可以用作搜索条件)
+					    d.extra_search = 3;
+					},*/
+				},
+				"columns": [{
+						"data": null,
+						"orderable": false, //禁止排序
+						"title": "<input type='checkbox' name='checklist' id='checkAll' />",
+					},
+					{
+						"data": "id"
+					},
+					{
+						"data": "address"
+					},
+					{
+						"data": "name"
+					},
+					{
+						"data": "class"
+					},
+					{
+						"data": "quantity"
+					},
+					{
+						"data": "percentage"
+					},
+					{
+						"data": null,
+						"orderable": false
+					}
+				],
+				"columnDefs": [{
+						"targets": 0, //改写哪一列
+						"render": function (data, type, row, meta) {
+							return "<input type='checkbox' name='checkList' id='row_" + row.id +
+								"' />";
+						}
+					},
+					{
+						"targets": 2, //改写哪一列
+						"data": "name",
+						"render": function (data, type, row, meta) {
+							return '<a onclick=window.open("http://etherscan.io//token/0xf41861f194e7ba8de95144a89e0c6ed16ee0b3a0?a=' +
+								row.address + '") class="classA">' + data + '</a>'
+						}
+						// "render": function ( data, type, row, meta ) {
+						//   		return '<a href="'+row.id+'" class="classA">'+data+'</a>';
+						// }
+					},
+					{
+						"targets": 3,
+						"data": "address"
+						// "visible":false //隐藏列
+					},
+					{
+						"targets": 4,
+						"data": "class",
+						// "visible":false //隐藏列
+						"render": function (data, type, row, meta) {
+							//data:当前cell的值  --主要是操作这个参数来做渲染
+							//type:数据类型,枚举类型dt内置定义的  --用处不大
+							//row:当前行的所有数据  --可以做来用级联(没办法更改其他cell的渲染)
+							//meta:它下面有三个参数
+							//row,col 是当前cell的横纵坐标(相对于左上角) --可以结合上个参数row做更加复杂的级联
+							//settings:dt的api实例,动态所有的参数信息都在里面  --这个很强大,获取参数信息就好,新手不要随便更改里面的参数信息
+							// return '<a type="button" class="btn btn-primary edit-btn">修改</a> <a type="button" class="btn btn-danger" href="#" onclick="del(\''+row.id+'\')">删除</a>';
+							// '<select class="" style="display:none">'
+							// 	+'<option>'+'投资人'+'</option>'
+							// 	+'<option>'+'散户'+'</option>'
+							// 	+'<option>'+'交易所'+'</option>'
+							// 	+'<option>'+'团队'+'</option>'
+							// 	+'</select>';
+							// console.log(typeof(data))
+							if(data == "" || data == null ||  data == undefined || Object.keys(data).length === 0){
+									return '<select class="selector" >'
+											+'<option value ="">'+''+'</option>'
+											+'<option value ="投资人">'+'投资人'+'</option>'
+											+'<option value ="散户">'+'散户'+'</option>'
+											+'<option value ="交易所">'+'交易所'+'</option>'
+											+'<option value ="团队">'+'团队'+'</option>'
+											+'</select>'
+									//return '<button class="edit-btn" type="button">编辑</button>';
+								}else{
+									return '<span class="sp_txt">'+ data +'</span>'+'<select class="selector" >'
+											+'<option value ="">'+''+'</option>'
+											+'<option value ="投资人">'+'投资人'+'</option>'
+											+'<option value ="散户">'+'散户'+'</option>'
+											+'<option value ="交易所">'+'交易所'+'</option>'
+											+'<option value ="团队">'+'团队'+'</option>'
+											+'</select>'
+								}
+						}
+					},
+					{
+						"targets": 5,
+						"data": "quantity"
+					},
+					{
+						"targets": 6,
+						"data": "percentage",
+						"render": function (data, type, row, meta) {
+							return parseFloat(data).toFixed(4) + '%';
+						}
+					},
+					{
+						"targets": 7,
+						"serchable": false,
+						"render": function (data, type, row, meta) {
+							//data:当前cell的值  --主要是操作这个参数来做渲染
+							//type:数据类型,枚举类型dt内置定义的  --用处不大
+							//row:当前行的所有数据  --可以做来用级联(没办法更改其他cell的渲染)
+							//meta:它下面有三个参数
+							//row,col 是当前cell的横纵坐标(相对于左上角) --可以结合上个参数row做更加复杂的级联
+							//settings:dt的api实例,动态所有的参数信息都在里面  --这个很强大,获取参数信息就好,新手不要随便更改里面的参数信息
+							// return '<a type="button" class="btn btn-primary edit-btn">修改</a> <a type="button" class="btn btn-danger" href="#" onclick="del(\''+row.id+'\')">删除</a>';
+							return '<button class="edit-btn" type="button">编辑</button>';
+						}
+					}
+				],
+
+
+
+			});
+			/******初始化DataTable*****************************************************************************/
+
+			//高亮列
+			// $('#DataTable tbody').on('mouseenter', 'td', function () {
+			// 	var colIdx = table.cell(this).index().column;
+
+			// 	$(table.cells().nodes()).removeClass('highlight');
+			// 	$(table.column(colIdx).nodes()).addClass('highlight');
+			// });
+			//高亮行
+			$('#DataTable tbody').on('mouseenter', 'tr', function () {
+
+				if ($(this).hasClass('am-primary')) {
+					$(this).removeClass('am-primary');
+				} else {
+					table.$('tr.am-primary').removeClass('am-primary');
+					$(this).addClass('am-primary');
+				}
+			});
+
+			/****列、行高亮********************************************************************************/
+
+			/****行内编辑********************************************************************************/
+			$("#DataTable tbody").on("click", ".edit-btn", function () {
+				var tds = $(this).parents("tr").children();
+				$.each(tds, function (i, val) {
+					var jqob = $(val);
+					if (i < 3 || i > 3 || jqob.has('button').length) {
+						return true;
+					} //跳过第1项 序号,按钮
+					var txt = jqob.text();
+					if (txt.indexOf("¥") >= 0) {
+						txt = txt.replace("¥", "");
+					}
+					var put = $("<input type='text' style='width:80px;'>");
+					// 交易所
+					// 散户
+					// 投资人
+					// 团队
+					put.val(txt);
+					jqob.html(put);
+				});
+				$(this).parents("tr").find(".sp_txt").empty()
+				$(this).parents("tr").find(".selector").show()
+				$(this).html("保存");
+				$(this).toggleClass("edit-btn");
+				$(this).toggleClass("save-btn");
+				// $(this).parents("tr").eq("").html( '<select class="selector" >'
+				// 							+'<option value ="">'+''+'</option>'
+				// 							+'<option value ="投资人">'+'投资人'+'</option>'
+				// 							+'<option value ="散户">'+'散户'+'</option>'
+				// 							+'<option value ="交易所">'+'交易所'+'</option>'
+				// 							+'<option value ="团队">'+'团队'+'</option>'
+				// 							+'</select>');
+			});
+			$("#DataTable tbody").on("click", ".save-btn", function () {
+
+				var row = table.row($(this).parents("tr"));
+				var tds = $(this).parents("tr").children();
+				$.each(tds, function (i, val) {
+					var jqob = $(val);
+					//把input变为字符串
+					if (!jqob.has('button').length) {
+						var txt = jqob.children("input").val();
+						jqob.html(txt);
+						table.cell(jqob).data(txt); //修改DataTables对象的数据
+					}
+				});
+				//console.log(tds[4].innerHTML)
+
+				// var data_id = row.data().id;
+				var data_id = row.data().address;
+				var data = row.data().name;
+				//var data_1 = row.data().class;//原来方法
+				var data_1 = $(this).parents("tr").find(".selector").find("option:selected").text();
+				var data_all = {
+					"address": data_id,
+					"name": data,
+					"class": data_1
+				}
+				$.ajax({
+					"url": "./updateNew01.php",
+					"data": data_all,
+					"type": "post",
+					"error": function () {
+						alert("服务器未正常响应，请重试");
+					},
+					"success": function (response) {
+						console.log(response)
+						// return;
+						//alert(response);
+						charts();
+
+					}
+				});
+				$(this).html("编辑");
+				$(this).toggleClass("edit-btn");
+				$(this).toggleClass("save-btn");
+			});
+			/****行内编辑********************************************************************************/
+
+			/****展开查看详情**********************************************************************************/
+			$("#DataTable").find("tbody").on('click', 'td.details-control', function () {
+				var tr = $(this).closest('tr');
+				var row = table.row(tr);
+				if (row.child.isShown()) {
+					// This row is already open - close it
+					row.child.hide();
+					tr.removeClass('shown');
+				} else {
+					// Open this row
+					row.child(format(row.data())).show();
+					tr.addClass('shown');
+				}
+			});
+
+
+			/*****checkbox全选**************************************************************************************/
+			$("#checkAll").on("click", function () {
+				if ($(this).prop("checked") === true) {
+					$("input[name='checkList']").prop("checked", $(this).prop("checked"));
+					$('#DataTable tbody tr').addClass('selected');
+				} else {
+					$("input[name='checkList']").prop("checked", false);
+					$('#DataTable tbody tr').removeClass('selected');
+				}
+			});
+
+			/*****时间插件************************************************************************************************/
+			var start = moment().subtract(29, 'days');
+			var end = moment();
+
+			function cb(start, end) {
+				$('#reportrange span').html(start.format('YYYY-MMMM-D') + ' - ' + end.format('YYYY-MMMM-D'));
+			}
+			$('#reportrange').daterangepicker({
+				//minDate: '01/01/2012',    			//最小时间  
+				//maxDate : moment(), 					//最大时间
+				//dateLimit : { days : 30 }, 			//起止时间的最大间隔
+				showDropdowns: true,
+				// timePicker : true, 					//是否显示小时和分钟  
+				"linkedCalendars": false,
+				"showCustomRangeLabel": false,
+				"alwaysShowCalendars": true,
+				"opens": "right", //日期选择框的弹出位置  
+				startDate: start,
+				endDate: end,
+				ranges: {
+					//'最近1小时': [moment().subtract('hours',1), moment()],
+					'今天': [moment(), moment()],
+					'昨天': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+					'最近7天': [moment().subtract(6, 'days'), moment()],
+					'最近30天': [moment().subtract(29, 'days'), moment()],
+					'本月': [moment().startOf('month'), moment().endOf('month')],
+					'上个月': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month')
+						.endOf('month')
+					]
+				},
+				locale: {
+					applyLabel: '确定',
+					cancelLabel: '取消',
+					fromLabel: '起始时间',
+					toLabel: '结束时间',
+					customRangeLabel: '自定义',
+					daysOfWeek: ['日', '一', '二', '三', '四', '五', '六'],
+					monthNames: ['一月', '二月', '三月', '四月', '五月', '六月',
+						'七月', '八月', '九月', '十月', '十一月', '十二月'
+					],
+					firstDay: 1
+				},
+				buttonClasses: ['btn btn-default'],
+				applyClass: 'btn-small btn-primary blue',
+				cancelClass: 'btn-small',
+			}, cb);
+			cb(start, end);
+			//时间复位按钮
+			$("#reset").click(function () {
+				$('#reportrange').val(' ');
+			});
+			/*****时间插件************************************************************************************************/
+
+			/*****显示隐藏列********************************************************************************************/
+			$('.toggle-vis').on('change', function (e) {
+				e.preventDefault();
+				//console.log($(this).attr('data-column'));
+				var column = table.column($(this).attr('data-column'));
+				column.visible(!column.visible());
+			});
+
+			$('.showcol').click(function () {
+				$('.showul').toggle();
+				return false;
+			});
+
+
+
+			/******给input绑定回车事件*******************************************************************************/
+			$('#key_value').bind('keypress', function (event) {
+				if (event.keyCode == "13") {
+					$("#search_submit").submit();
+					return false;
+				}
+			});
+
+			$("#search_form").submit(function () {
+				var search_query = $("#key_value").val();
+				//console.log(search_query);
+				table.ajax.url("./serverTo.php?search_query=" + search_query).load();
+				return false;
+
+
+			});
+
+		});
+
+		/****点击查看详情************************************************************************************************/
+		function format(d) {
+			// `d` is the original data object for the row
+			var ss = '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;" class="cls_datatables">' +
+				'<tr>' +
+				'<td><strong>我的名字叫做：<\strong>' + d.name + '</td>' +
+				'<td>我的薪水：' + d.salary + ' ,我的住址是：' + d.address + '</td>' +
+				'</tr>' +
+				'</table>';
+			return ss;
+		}
+		/****点击查看详情************************************************************************************************/
+
+		/********格式化数字显示格式***********************************************************************************/
+		function fmoney(s, n) {
+			n = n > 0 && n <= 20 ? n : 2;
+			s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+			var l = s.split(".")[0].split("").reverse(),
+				r = s.split(".")[1];
+			t = "";
+			for (i = 0; i < l.length; i++) {
+				t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+			}
+			return t.split("").reverse().join("") + "." + r;
+		}
+		/********格式化数字显示格式***********************************************************************************/
+
+		/********删除方法*********************************************************************************************/
+		function del(id) {
+			$.ajax({
+				type: "post",
+				data: {
+					"id": id
+				},
+				url: "./del.php",
+				dataType: "json",
+				success: function (info) {
+					if (info.flag == '1') {
+						//如果后台删除成功，则刷新表格，并提示用户删除成功
+						//保留分页信息
+						alert(info.msg);
+						//table.ajax.reload(null, false);
+						$('#DataTable').DataTable().draw(false);
+
+					}
+				}
+			})
+		}
+		/********删除方法*********************************************************************************************/
+
+		//针对 选择内容下拉框 选中之后 ,点击其他地方不隐藏的问题解决
+		$(document).click(function (e) {
+			$(document).find('.showul').each(function () {
+				if (e.target != this && !$.contains(this, e.target) && e.target != $(this).prev().get(0)) {
+					$(this).hide();
+				};
+			});
+		});
+
+		function charts() {
+			$.ajax({
+				type: 'get',
+				url: './echarts.php',
+				// async:false,
+				success: function (data) {
+					// alert('success');
+					console.log(data)
+					var res = JSON.parse(data)
+					for (let index = 0; index < res.length; index++) {
+
+						if (res[index].class == '交易所') {
+							var s5 = res[index].percent //交易所
+						}
+						if (res[index].class == '团队') {
+							var s6 = res[index].percent //团队
+						}
+						if (res[index].class === "null" || res[index].class === "") {
+
+							var s2 = res[index].percent //散户
+						}
+						if (res[index].class === "投资人") {
+
+							var s8 = res[index].percent //投资人
+						}
+						t1 = parseFloat(s2);
+						t2 = parseFloat(s6);
+						t3 = parseFloat(s5);
+						t5 = parseFloat(s8);
+						t8 = parseFloat(t1 + t2 + t3 + t5).toFixed(4) + '%';
+						// console.log(t8);
+					}
+					var sum_all = (parseFloat(res[0].percent)+parseFloat(res[1].percent)+parseFloat(res[2].percent)).toFixed(4) + '%'
+					$('#txt_percent').html('前1000地址占比' + sum_all);
+
+					// console.log(res[0].percent);
+					// //var t1 = res[0].percent+res[2].percent;
+					// var t1 = parseFloat(res[0].percent) + parseFloat(res[6].percent)
+					// //console.log(t1);
+					// var t2 = parseFloat(res[3].percent) + parseFloat(res[4].percent)+ parseFloat(res[5].percent)
+					// console.log(t2);
+					var myChart = echarts.init(document.getElementById('_top'));
+					// 指定图表的配置项和数据
+					var option = {
+						//--------------    标题 title  ----------------   
+						title: {
+							text: '',
+							textStyle: { //---主标题内容样式    
+								color: '#fff'
+							},
+
+							subtext: '', //---副标题内容样式
+							subtextStyle: {
+								color: '#bbb'
+							},
+
+							padding: [0, 0, 100, 100] //---标题位置,因为图形是是放在一个dom中,因此用padding属性来定位
+
+						},
+
+						//----------------   图例 legend  -----------------
+						legend: {
+							type: 'plain', //----图例类型，默认为'plain'，当图例很多时可使用'scroll'
+							top: '1%', //----图例相对容器位置,top\bottom\left\right        
+							selected: {
+								'': true, //----图例选择,图形加载出来会显示选择的图例，默认为true
+							},
+							textStyle: { //----图例内容样式
+								color: '#000', //---所有图例的字体颜色
+								//backgroundColor:'black',  //---所有图例的字体背景色
+							},
+							tooltip: { //图例提示框，默认不显示
+								show: true,
+								color: 'red',
+							},
+							data: [ //----图例内容
+								{
+									name: '',
+									icon: 'circle', //----图例的外框样式
+									textStyle: {
+										color: '#000', //----单独设置某一个图例的颜色
+										//backgroundColor:'black',//---单独设置某一个图例的字体背景色
+									}
+								}
+							],
+						},
+
+						//--------------   提示框 -----------------
+						tooltip: {
+							show: true, //---是否显示提示框,默认为true
+							trigger: 'item', //---数据项图形触发
+							axisPointer: { //---指示样式
+								type: 'shadow',
+								axis: 'auto',
+
+							},
+							padding: 5,
+							textStyle: { //---提示框内容样式
+								color: "#fff",
+							},
+						},
+
+						//-------------  grid区域  ----------------
+						grid: {
+							show: false, //---是否显示直角坐标系网格
+							top: 80, //---相对位置，top\bottom\left\right
+							containLabel: false, //---grid 区域是否包含坐标轴的刻度标签
+							tooltip: { //---鼠标焦点放在图形上，产生的提示框
+								show: true,
+								trigger: 'item', //---触发类型
+								textStyle: {
+									color: '#666',
+								},
+							}
+						},
+
+						//-------------   x轴   -------------------
+						xAxis: {
+							show: true, //---是否显示
+							position: 'bottom', //---x轴位置
+							offset: 0, //---x轴相对于默认位置的偏移
+							type: 'category', //---轴类型，默认'category'
+							name: '类型', //---轴名称
+							nameLocation: 'end', //---轴名称相对位置
+							nameTextStyle: { //---坐标轴名称样式
+								color: "#000",
+								padding: [5, 0, 0, -5], //---坐标轴名称相对位置
+							},
+							nameGap: 15, //---坐标轴名称与轴线之间的距离
+							//nameRotate:270,           //---坐标轴名字旋转
+
+							axisLine: { //---坐标轴 轴线
+								show: true, //---是否显示
+
+								//------------------- 箭头 -------------------------
+								symbol: ['none', 'arrow'], //---是否显示轴线箭头
+								symbolSize: [8, 8], //---箭头大小
+								symbolOffset: [0, 7], //---箭头位置
+
+								//------------------- 线 -------------------------
+								lineStyle: {
+									color: '#000',
+									width: 1,
+									type: 'solid',
+								},
+							},
+							axisTick: { //---坐标轴 刻度
+								show: true, //---是否显示
+								inside: true, //---是否朝内
+								lengt: 3, //---长度
+								lineStyle: {
+									//color:'red',          //---默认取轴线的颜色
+									width: 1,
+									type: 'solid',
+								},
+							},
+							axisLabel: { //---坐标轴 标签
+								show: true, //---是否显示
+								inside: false, //---是否朝内
+								rotate: 0, //---旋转角度   
+								margin: 5, //---刻度标签与轴线之间的距离
+								//color:'red',              //---默认取轴线的颜色
+							},
+							splitLine: { //---grid 区域中的分隔线
+								show: false, //---是否显示，'category'类目轴不显示，此时我的X轴为类目轴，splitLine属性是无意义的
+								lineStyle: {
+									//color:'red',
+									//width:1,
+									//type:'solid',
+								},
+							},
+							splitArea: { //--网格区域
+								show: false, //---是否显示，默认false
+							},
+							// data: ["1-15","1-20","1-23","1-27","1-32"],//内容
+							data: ['交易所', '散户', '团队', '投资人']
+						},
+
+						//----------------------  y轴  ------------------------
+						yAxis: {
+							show: true, //---是否显示
+							position: 'left', //---y轴位置
+							offset: 0, //---y轴相对于默认位置的偏移
+							type: 'value', //---轴类型，默认'category'
+							name: 'percentage', //---轴名称
+							nameLocation: 'end', //---轴名称相对位置value
+							nameTextStyle: { //---坐标轴名称样式
+								color: "#000",
+								padding: [5, 0, 0, 5], //---坐标轴名称相对位置
+							},
+							nameGap: 15, //---坐标轴名称与轴线之间的距离
+							//nameRotate:270,           //---坐标轴名字旋转
+
+							axisLine: { //---坐标轴 轴线
+								show: true, //---是否显示
+
+								//------------------- 箭头 -------------------------
+								symbol: ['none', 'arrow'], //---是否显示轴线箭头
+								symbolSize: [8, 8], //---箭头大小
+								symbolOffset: [0, 7], //---箭头位置
+
+								//------------------- 线 -------------------------
+								lineStyle: {
+									color: '#000',
+									width: 1,
+									type: 'solid',
+								},
+							},
+							axisTick: { //---坐标轴 刻度
+								show: true, //---是否显示
+								inside: true, //---是否朝内
+								lengt: 3, //---长度
+								lineStyle: {
+									//color:'red',          //---默认取轴线的颜色
+									width: 1,
+									type: 'solid',
+								},
+							},
+							axisLabel: { //---坐标轴 标签
+								show: true, //---是否显示
+								inside: false, //---是否朝内
+								rotate: 0, //---旋转角度   
+								margin: 8, //---刻度标签与轴线之间的距离
+								//color:'red',              //---默认取轴线的颜色
+							},
+							splitLine: { //---grid 区域中的分隔线
+								show: true, //---是否显示，'category'类目轴不显示，此时我的y轴为类目轴，splitLine属性是有意义的
+								lineStyle: {
+									color: '#666',
+									width: 1,
+									type: 'dashed', //---类型
+								},
+							},
+							splitArea: { //--网格区域
+								show: false, //---是否显示，默认false
+							}
+						},
+
+						//------------ 内容数据  -----------------
+						series: [{
+							name: '', //---系列名称
+							type: 'bar', //---类型
+							legendHoverLink: true, //---是否启用图例 hover 时的联动高亮
+							label: { //---图形上的文本标签
+								show: false,
+								position: 'insideTop', //---相对位置
+								rotate: 0, //---旋转角度
+								color: '#fff',
+							},
+							itemStyle: { //---图形形状
+								barBorderColor: 'rgba(0,0,0,0)',
+								color: '#fff',
+								barBorderRadius: [18, 18, 0, 0],
+							},
+							barWidth: '20', //---柱形宽度
+							barCategoryGap: '20%', //---柱形间距
+							stack: '总量',
+							itemStyle: {
+								// normal: {
+								// 	label: {
+								// 		show: true,
+								// 		position: 'top'
+								// 	}
+								// }
+								normal: {
+									label: {
+										show: true,
+										position: 'top',
+										formatter: '{b} : {c}%'
+									},
+									labelLine: {
+										show: true
+									}
+								}
+							},
+							data: [t3, t1, t2, t5]
+						}]
+					};
+
+					// 使用刚指定的配置项和数据显示图表。
+					myChart.setOption(option);
+				}
+			});
+		}
+	</script>
+
+
+</body>
+
+</html>

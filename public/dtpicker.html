@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>监控配置</title>
+	<link rel="stylesheet" href="css/mui.min.css">
+	<link rel="stylesheet" type="text/css" href="css/app.css" />
+	<link rel="stylesheet" type="text/css" href="css/mui.picker.min.css" />
+	<style>
+		html,
+			body,
+			.mui-content {
+				height: 0px;
+				margin: 0px;
+				background-color: #efeff4;
+			}
+			h5.mui-content-padded {
+				margin-left: 3px;
+				margin-top: 20px !important;
+			}
+
+			h5.mui-content-padded:first-child {
+				margin-top: 12px !important;
+			}
+
+			.mui-btn {
+				font-size: 16px;
+				padding: 8px;
+				margin: 3px;
+			}
+
+			.ui-alert {
+				text-align: center;
+				padding: 20px 10px;
+				font-size: 23px;
+				font-weight: bold;
+			}
+
+			* {
+				-webkit-touch-callout: none;
+				-webkit-user-select: none;
+			}
+		</style>
+</head>
+
+<body>
+	<div class="mui-content">
+		<div class="mui-content-padded">
+			<button id='demo5' data-options='{"type":"time"}' class="btn mui-btn mui-btn-block" style="background: #ffeb3ba6;">选择时间</button>
+			<div id='result' class="ui-alert"></div>
+			<button id='setall' class=" mui-btn mui-btn-block" style="background: limegreen;">涨幅</button>
+			<div id='result7' class="ui-alert"></div>
+			<button id='setall2' class="mui-btn mui-btn-block" style="background: red;">跌幅</button>
+			<div id='result8' class="ui-alert"></div>
+			<button type="submit" id="submit_btn" class="mui-btn mui-btn-block" style="background: #2196F3;">提交</button>
+		</div>
+
+	</div>
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<script src="js/mui.min.js"></script>
+	<script src="js/mui.picker.min.js"></script>
+	<script>
+		(function ($) {
+			$.init();
+			var _data = [{
+					text: '1',
+					value: '1'
+				}, {
+					text: '2',
+					value: '2'
+				},
+				{
+					text: '3',
+					value: '3'
+				}, {
+					text: '4',
+					value: '4'
+				}, {
+					text: '5',
+					value: '5'
+				}, {
+					text: '6',
+					value: '6'
+				}, {
+					text: '7',
+					value: '7'
+				}, {
+					text: '8',
+					value: '8'
+				}, {
+					text: '9',
+					value: '9'
+				}, {
+					text: '10',
+					value: '10'
+				}, {
+					text: '11',
+					value: '11'
+				}, {
+					text: '12',
+					value: '12'
+				}, {
+					text: '13',
+					value: '13'
+				}, {
+					text: '14',
+					value: '14'
+				}, {
+					text: '15',
+					value: '15'
+				}, {
+					text: '16',
+					value: '16'
+				}, {
+					text: '17',
+					value: '17'
+				}, {
+					text: '18',
+					value: '18'
+				}, {
+					text: '19',
+					value: '19'
+				}, {
+					text: '20',
+					value: '20'
+				}, {
+					text: '21',
+					value: '21'
+				}, {
+					text: '22',
+					value: '22'
+				}, {
+					text: '23',
+					value: '23'
+				}, {
+					text: '23',
+					value: '23'
+				}, {
+					text: '23',
+					value: '23'
+				}, {
+					text: '23',
+					value: '23'
+				}, {
+					text: '24',
+					value: '24'
+				}, {
+					text: '25',
+					value: '25'
+				}, {
+					text: '26',
+					value: '26'
+				}, {
+					text: '27',
+					value: '27'
+				}, {
+					text: '28',
+					value: '28'
+				}, {
+					text: '29',
+					value: '29'
+				}, {
+					text: '30',
+					value: '30'
+				}, {
+					text: '31',
+					value: '31'
+				}, {
+					text: '32',
+					value: '32'
+				}, {
+					text: '33',
+					value: '33'
+				}, {
+					text: '34',
+					value: '34'
+				}, {
+					text: '35',
+					value: '35'
+				}, {
+					text: '36',
+					value: '36'
+				}, {
+					text: '37',
+					value: '37'
+				}, {
+					text: '38',
+					value: '38'
+				}, {
+					text: '39',
+					value: '39'
+				}, {
+					text: '40',
+					value: '40'
+				}, {
+					text: '41',
+					value: '41'
+				}, {
+					text: '42',
+					value: '42'
+				}, {
+					text: '43',
+					value: '43'
+				}, {
+					text: '44',
+					value: '44'
+				}, {
+					text: '45',
+					value: '45'
+				}, {
+					text: '46',
+					value: '46'
+				}, {
+					text: '47',
+					value: '47'
+				}, {
+					text: '48',
+					value: '48'
+				}, {
+					text: '49',
+					value: '49'
+				}, {
+					text: '50',
+					value: '50'
+				}, {
+					text: '60',
+					value: '60'
+				}, {
+					text: '70',
+					value: '70'
+				}, {
+					text: '80',
+					value: '80'
+				}, {
+					text: '90',
+					value: '90'
+				}, {
+					text: '100',
+					value: '100'
+				}, {
+					text: '110',
+					value: '110'
+				}, {
+					text: '120',
+					value: '120'
+				}, {
+					text: '130',
+					value: '130'
+				}, {
+					text: '140',
+					value: '140'
+				}, {
+					text: '150',
+					value: '150'
+				}, {
+					text: '160',
+					value: '160'
+				}, {
+					text: '170',
+					value: '170'
+				}, {
+					text: '180',
+					value: '180'
+				}, {
+					text: '190',
+					value: '190'
+				}, {
+					text: '200',
+					value: '200'
+				}
+			];
+			var result = $('#result')[0];
+			var btns = $('.btn');
+			var btn = document.getElementById("setall");
+			var btn2 = document.getElementById("setall2");
+			var btnSub = document.getElementById('submit_btn');
+			btn.addEventListener("tap", function () {
+				var picker = new mui.PopPicker();
+				picker.setData(_data)
+				//picker.pickers[0].setSelectedIndex(4, 2000);
+				picker.pickers[0].setSelectedValue('fourth', 2000);
+				picker.show(function (SelectedItem) {
+					console.log(SelectedItem);
+					var result7 = document.getElementById("result7");
+					result7.innerHTML = '监控范围: +' + '<i>' + SelectedItem[0].value + '</i>' + '%';
+					btnSub.removeAttribute("disabled");
+					btnSub.style.background ='#2196F3';
+					btnSub.innerHTML ='提交';
+					// $('#submit_btn').css("background", "#2196F3");
+					// $('#submit_btn').html("提交");
+				})
+			});
+			btn2.addEventListener("tap", function () {
+				console.log("tap event trigger");
+				var picker = new mui.PopPicker();
+				picker.setData(_data)
+				//picker.pickers[0].setSelectedIndex(4, 2000);
+				picker.pickers[0].setSelectedValue('fourth', 2000);
+				picker.show(function (SelectedItem) {
+					console.log(SelectedItem);
+					var result7 = document.getElementById("result7");
+					result8.innerHTML = '监控范围: -' + '<i>' + SelectedItem[0].value + '</i>' + '%';
+
+					btnSub.removeAttribute("disabled");
+					btnSub.style.background ='#2196F3';
+					btnSub.innerHTML ='提交';
+				})
+			});
+			btns.each(function (i, btn) {
+				btn.addEventListener('tap', function () {
+					var _self = this;
+					if (_self.picker) {
+						_self.picker.show(function (rs) {
+							result.innerHTML = '监控时间段: ' + '<i>' + rs.text + '</i>';
+							localStorage.flag3 = true;
+							_self.picker.dispose();
+							_self.picker = null;
+						});
+					} else {
+						var optionsJson = this.getAttribute('data-options') || '{}';
+						var options = JSON.parse(optionsJson);
+						var id = this.getAttribute('id');
+
+						_self.picker = new $.DtPicker(options);
+						_self.picker.show(function (rs) {
+
+							console.log(rs.text)
+							result.innerHTML = '监控时间段: ' + '<i>' + rs.text + '</i>' + '   内';
+							btnSub.removeAttribute("disabled");
+							btnSub.style.background ='#2196F3';
+							btnSub.innerHTML ='提交';
+
+							_self.picker.dispose();
+							_self.picker = null;
+						});
+					}
+
+				}, false);
+			});
+		})(mui);
+
+
+		window.onload = function () {
+			$('#submit_btn').attr("disabled", "true");
+			$('#submit_btn').html("防止重复提交,请更改选项");
+			$('#submit_btn').css("background", "#ccc");
+			$.ajax({
+				type: "get",
+				url: "http://trendapi.show-fund.com/get_alarm_config/",
+				dataType: 'json',
+				async: true,
+				success: function (res) {
+					$('#result').html('监控时间段：' + '<i>' + res.time + '</i>' + '内'),
+						$('#result7').html('监控范围：+' + '<i>' + res.up + '</i>' + '%'),
+						$('#result8').html('监控范围：-' + '<i>' + res.down + '</i>' + '%')
+
+				},
+				error: function (error) {
+					mui.alert("请勿重复提交", "提交重复")
+				}
+			});
+			var btnSub = document.getElementById('submit_btn');
+			btnSub.addEventListener("tap", function () {
+				$.ajax({
+					type: "post",
+					data: {
+						time: $('#result').find("i").html(),
+						up: $('#result7').find("i").html(),
+						down: $('#result8').find("i").html()
+					},
+					url: "http://trendapi.show-fund.com/update_alarm_config/",
+					dataType: 'json',
+					async: true,
+					success: function (res) {
+						console.log(res);
+						if (res.errcode == 0) {
+							mui.alert("5分钟后生效", "提交成功")
+						}
+
+					},
+					error: function (error) {
+						mui.alert("呼叫失败联系萝卜哥", "提交失败")
+					}
+				});
+			})
+		}
+	</script>
+</body>
+
+</html>

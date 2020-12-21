@@ -1,0 +1,1210 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <style>
+        /* css 代码  */
+        .highcharts-axis-resizer {
+            stroke: #eee;
+        }
+
+        .highcharts-axis-resizer:hover {
+            stroke: #ccc;
+        }
+
+        .show_load {
+            position: absolute;
+            z-index: 999999;
+            width: 300px;
+            height: 80px;
+            left: 50%;
+            margin-left: -150px;
+            text-align: center;
+            top: 30%;
+            font-size: 36px;
+            background: #0000004a;
+            line-height: 80px;
+            border-radius: 10px;
+            color: blueviolet;
+            display: none;
+        }
+        li {
+            list-style: none;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .btn_select_time{
+            width: 50px;
+            text-align: center;
+        }
+    </style>
+    <script src="http://img.hcharts.cn/jquery/jquery-1.8.3.min.js"></script>
+    <script src="http://img.hcharts.cn/highstock/highstock.js"></script>
+    <script src="http://img.hcharts.cn/highcharts/modules/exporting.js"></script>
+    <script src="http://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
+    <script src="http://img.hcharts.cn/highcharts/modules/drag-panes.js"></script>
+    <script src="http://img.hcharts.cn/highstock/indicators/indicators.js"></script>
+    <script src="http://img.hcharts.cn/highstock/indicators/volume-by-price.js"></script>
+</head>
+
+<body>
+    <div class="show_load">数据正在加载中</div>
+    <div>
+        <ul>
+            <li>
+                <div id='day_1' class="btn_select_time">1天</div>
+            </li>
+            <li>
+                <div id='day_7' class="btn_select_time">7天</div>
+            </li>
+            <!-- <li>
+                <div id='day_14' class="btn_select_time">7~14天</div>
+            </li>
+            <li>
+                <div id='day_30' class="btn_select_time">15~30天</div>
+            </li> -->
+            <li>
+                <div id='month_1' class="btn_select_time">1月</div>
+            </li>
+            <!-- <li>
+                    <div id='month_2' class="btn_select_time">2个月</div>
+            </li> -->
+            <li>
+                <div id='month_3' class="btn_select_time">3个月</div>
+            </li>
+            <!-- <li>
+                    <div id='month_6' class="btn_select_time">3~6个月</div>
+            </li>
+            <li>
+                    <div id='month_12' class="btn_select_time">6~12个月</div>
+            </li> -->
+            <li>
+                <div id='year_1' class="btn_select_time">1年</div>
+            </li>
+            <li>
+                <div id='year_today' class="btn_select_time">今年</div>
+            </li>
+            <li>
+                <div id='year_all' class="btn_select_time">全部</div>
+            </li>
+        </ul>
+    </div>
+    <div id="container" style="height: 500px; min-width: 310px"></div>
+    <script>
+        var url_chat = './hightcharts.php';
+        $.ajax({
+            type: "GET",
+            url: url_chat,
+            dataType: "json",
+            async: true,
+            beforeSend: function () {
+                    $('.show_load').show();
+            },
+            error: function (data) {
+                //console.log(data)
+            },
+            success: function (data) {
+                // var selected_index = 6;
+                ////console.log(data)
+                //三条线 start
+                var s1_price_usd_eth = [], //etc的usd line
+                    s1_price_btc_eth = [], //etc的btc line
+                    s2_price_usd_btc = [], //btc的usd line
+                    //三条线 end
+                    volume_eth = [], //volume eth目前唯一
+                    dataLength_btc = data.btc.price_usd.length, //btc的价格
+                    dataLength = data.eth.price_usd.length, //etc的价格
+                    //btc的遍历值
+                    i = 0;
+                for (i; i < dataLength; i += 1) {
+                    //console.log(data.eth.volume_usd[i][1])
+                    //console.log(data.eth.price_usd[i][0]/1000)
+                    //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                    var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                    var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                    s1_price_usd_eth.push([
+                        t1,
+                        data.eth.price_usd[i][1]
+                    ]);
+                    s1_price_btc_eth.push([
+                        t1_1,
+                        data.eth.price_btc[i][1]
+                    ]);
+                    volume_eth.push([
+                        //data.eth.price_usd[i][0], // the date
+                        t1,
+                        data.eth.volume_usd[i][1] // the date
+                        // the volume
+                    ]);
+                }
+                //btc的遍历值
+                for (i; i < dataLength_btc; i += 1) {
+
+                    //console.log(data.eth.volume_usd[i][1])
+
+                    //console.log(data.eth.price_usd[i][0]/1000)
+                    console.log(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                    var t2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                    s2_price_usd_btc.push([
+                        t2,
+                        data.btc.price_usd[i][1]
+                    ]);
+                }
+                charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                $('.show_load').hide();
+                console.log('初始化')
+            }
+        });
+        $('#day_1').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var endTime = Date.parse(new Date());
+            var startTime = parseInt(endTime) - parseInt(86400000);
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: true,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log('重载一天数据')
+                    // console.log("重载了");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        $('#day_7').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var endTime = Date.parse(new Date());
+            var startTime = parseInt(endTime) - parseInt(604800000);
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: true,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线
+                        s3_price_show_btc = [],//show_btc line
+                        s3_price_show_eth = [],//show_btc line
+                        s3_price_show_usdt = [],//show_btc line
+                        // okex三条线
+                        s5_price_show_usdt = [],
+                        s5_price_show_eth = [],
+                        s5_price_show_btc = [],
+                         // show三条线
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_show = data.show.price_usd.length,
+                        dataLength_okex = data.okex.data[0].length,
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //三条线
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    };
+                    j=0;
+                    for (j; j < dataLength_okex; j += 1) {
+                    // okex三条线
+                    var t1 = Date.parse(timestampToTime(data.eth.price_usd[j][0] / 1000));
+                    var t1_1 = Date.parse(timestampToTime(data.okex.data[0][j][0] / 1000));
+                    var t1_2 = Date.parse(timestampToTime(data.okex.data[0][j][0] / 1000));
+                    // var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                    // var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                    // var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                    s3_price_show_usdt.push([
+                        t1,
+                        Number(data.okex.data[2][j][1])
+                    ]);
+                    s3_price_show_eth.push([
+                    t1,
+                        Number(data.okex.data[1][j][1])
+                    ]);
+                    s3_price_show_btc.push([
+                    t1,
+                        Number(data.okex.data[0][j][1])
+                    ]);
+                    };
+                    k = 0;
+                    for (k; k < dataLength_show; k += 1) {
+                    // show三条线
+                    var t1_0 = Date.parse(timestampToTime(data.show.price_usd[k][0]/ 1000));
+                    var t1 = Date.parse(timestampToTime(data.eth.price_usd[k][0]/ 1000));
+                    var t1_1 = Date.parse(timestampToTime(data.show.price_platform[k][0]/ 1000));
+                    var t1_2 = Date.parse(timestampToTime(data.show.price_btc[k][0]/ 1000));
+                    console.log(t1+'t1')
+                    console.log(t1_0+'t1_0')
+                    // s3_price_show_usdt.push([
+                    //     t1,
+                    //     Number(data.okex.data[2][k][1])
+                    // ]);
+                    // s3_price_show_eth.push([
+                    //     t1_1,
+                    //     Number(data.okex.data[1][k][1])
+                    // ]);
+                    // s3_price_show_btc.push([
+                    //     t1_2,
+                    //     Number(data.okex.data[0][k][1])
+                    // ]);
+                    s5_price_show_usdt.push([
+                        t1,
+                        data.show.price_usd[k][1]
+                    ]);
+                    s5_price_show_eth.push([
+                        t1,
+                       data.show.price_platform[k][1]
+                    ]);
+                    s5_price_show_btc.push([
+                        t1,
+                        data.show.price_btc[k][1]
+                    ]);
+                    };
+
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc,s3_price_show_btc,s3_price_show_eth,s3_price_show_usdt,s5_price_show_usdt,s5_price_show_eth,s5_price_show_btc,volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载了7天的数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        //$('#one').unbind();
+        $('#month_1').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var endTime = Date.parse(new Date());
+            var startTime = to_one_month();
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: false,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载了一个月的数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+
+        $('#month_2').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var endTime = Date.parse(new Date());
+            var startTime = to_two_month();
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: false,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                       // console.log(i)
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000 ));
+                        //console.log(t1+'差俩小时')
+                        
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,//time
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,//time
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,//time
+                            data.btc.price_usd[i][1]//the date
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载了一个月的数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        // $('#two').unbind();
+        $('#month_3').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var endTime = Date.parse(new Date());
+            var startTime = to_three_month();
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: false,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        // volume_eth.push([
+                        //     //data.eth.price_usd[i][0], // the date
+                        //    // t1,
+                        //     data.eth.volume_usd[i][1] // the date
+                        //     // the volume
+                        // ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载了3个月的数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        //$('#three').unbind();
+        $('#year_1').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var now = new Date();
+            now.setFullYear(now.getFullYear() - 1);
+            var endTime = Date.parse(new Date());
+            var startTime = Date.parse(now);
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: false,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载一年数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        // $('#four').unbind();
+        $('#year_today').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            var now = new Date();
+            now.setFullYear(now.getFullYear() - 1);
+            var endTime = Date.parse(new Date());
+            var startTime = to_getOne_Year("s", 0);
+            console.log(startTime);
+            $.ajax({
+                type: "GET",
+                url: './hightcharts_can.php?startTime=' + startTime +
+                    '&endTime=' + endTime,
+                dataType: "json",
+                async: false,
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载今年数据ytd");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        //$('#five').unbind();
+        $('#year_all').click(function () {
+            $(this).parents('li').siblings().find('div').css('background','#fff');
+            $(this).parents('li').siblings().find('div').css('color','#000');
+            $(this).css('background','#ccc');
+            $(this).css('color','#fff');
+            $.ajax({
+                type: "GET",
+                url: './hightcharts.php',
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    var s1_price_usd_eth = [], //etc的usd line
+                        s1_price_btc_eth = [], //etc的btc line
+                        s2_price_usd_btc = [], //btc的usd line
+                        //三条线 end
+                        volume_eth = [], //volume eth目前唯一
+                        dataLength_btc = data.btc.price_usd.length, //btc的价格
+                        dataLength = data.eth.price_usd.length, //etc的价格
+                        //btc的遍历值
+                        i = 0;
+                    for (i; i < dataLength; i += 1) {
+                        //console.log(data.eth.volume_usd[i][1])
+                        //console.log(data.eth.price_usd[i][0]/1000)
+                        //console.log(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1 = Date.parse(timestampToTime(data.eth.price_usd[i][0] / 1000));
+                        var t1_1 = Date.parse(timestampToTime(data.eth.price_btc[i][0] / 1000));
+                        var t1_2 = Date.parse(timestampToTime(data.btc.price_usd[i][0] / 1000));
+                        s1_price_usd_eth.push([
+                            t1,
+                            data.eth.price_usd[i][1]
+                        ]);
+                        s1_price_btc_eth.push([
+                            t1_1,
+                            data.eth.price_btc[i][1]
+                        ]);
+                        s2_price_usd_btc.push([
+                            t1_2,
+                            data.btc.price_usd[i][1]
+                        ]);
+                        volume_eth.push([
+                            //data.eth.price_usd[i][0], // the date
+                            t1,
+                            data.eth.volume_usd[i][1] // the date
+                            // the volume
+                        ]);
+                    }
+                    charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc, volume_eth)
+                    $('.show_load').hide();
+                    console.log("重载全部数据");
+                    // var selected_index = 0;
+                    // charts(data,selected_index)
+                },
+            })
+        })
+        //$('#six').unbind();
+        function afterSetExtremes(e) {
+            $.ajax({
+                type: "get",
+                url: './hightcharts_can.php?startTime=' + Math.round(e.min) +
+                    '&endTime=' + Math.round(e.max),
+                dataType: "json",
+                beforeSend: function () {
+                    $('.show_load').show();
+                },
+                success: function (data) {
+                    charts(data);
+                    console.log('时间轴数据加载')
+                    //chart.hideLoading();
+                    $('.show_load').hide();
+                    return;
+                }
+            });
+        }
+        //用javascript删除某一个cookie的方法，该方法传入要删除cookie的名称
+        function RemoveCookie(cookieName) {
+            var cookies = document.cookie.split(";"); //将所有cookie键值对通过分号分割为数组
+
+            //循环遍历所有cookie键值对
+            for (var i = 0; i < cookies.length; i++) {
+                //有些cookie键值对前面会莫名其妙产生一个空格，将空格去掉
+                if (cookies[i].indexOf(" ") == 0) {
+                    cookies[i] = cookies[i].substring(1);
+                }
+
+                //比较每个cookie的名称，找到要删除的那个cookie键值对
+                if (cookies[i].indexOf(cookieName) == 0) {
+                    var exp = new Date(); //获取客户端本地当前系统时间
+                    exp.setTime(exp.getTime() - 60 * 1000); //将exp设置为客户端本地时间1分钟以前，将exp赋值给cookie作为过期时间后，就表示该cookie已经过期了, 那么浏览器就会将其立刻删除掉
+
+                    document.cookie = cookies[i] + ";expires=" + exp.toUTCString(); //设置要删除的cookie的过期
+
+                    break; //要删除的cookie已经在客户端被删除掉，跳出循环
+                }
+            }
+        }
+
+        function charts(s1_price_usd_eth, s1_price_btc_eth, s2_price_usd_btc,s3_price_show_btc,s3_price_show_eth,s3_price_show_usdt,s5_price_show_usdt,s5_price_show_eth,s5_price_show_btc,volume_eth) {
+            // create the chart
+            Highcharts.stockChart('container', {
+                navigator: {
+                    height: 40,
+                    margin: 25,
+                    maskInside: true,
+                    handles: {
+                        width: 7,
+                        height: 15,
+                        symbols: ['navigator-handle', 'navigator-handle'],
+                        enabled: true,
+                        lineWidth: 1,
+                        backgroundColor: '#f2f2f2',
+                        borderColor: '#999999'
+                    },
+                    //maskFill: color('#6685c2').setOpacity(0.3).get(),
+                    outlineColor: '#cccccc',
+                    outlineWidth: 1,
+                    series: {
+                        fillOpacity: 0.05,
+                        lineWidth: 1,
+                        compare: null,
+                        dataGrouping: {
+                            approximation: 'average',
+                            enabled: true,
+                            groupPixelWidth: 2,
+                            smoothed: true,
+
+                        },
+                        dataLabels: {
+                            enabled: false,
+                            zIndex: 2
+                        },
+                        id: 'highcharts-navigator-series',
+                        className: 'highcharts-navigator-series',
+                        lineColor: null,
+                        marker: {
+                            enabled: false
+                        },
+                        pointRange: 0,
+                        threshold: null
+                    },
+                    xAxis: {
+                        overscroll: 0,
+                        className: 'highcharts-navigator-xaxis',
+                        tickLength: 0,
+                        lineWidth: 0,
+                        gridLineColor: '#e6e6e6',
+                        gridLineWidth: 1,
+                        tickPixelInterval: 200,
+                        labels: {
+                            align: 'left',
+                            style: {
+                                color: '#999999'
+                            },
+                            x: 3,
+                            y: -4
+                        },
+                        crosshair: false
+                    },
+                    yAxis: {
+                        className: 'highcharts-navigator-yaxis',
+                        gridLineWidth: 0,
+                        startOnTick: false,
+                        endOnTick: false,
+                        minPadding: 0.1,
+                        maxPadding: 0.1,
+                        labels: {
+                            enabled: false
+                        },
+                        crosshair: false,
+                        title: {
+                            text: null
+                        },
+                        tickLength: 0,
+                        tickWidth: 0
+                    }
+                },
+                rangeSelector: {
+                    buttonTheme: {
+                        display: 'none' // 不显示按钮
+                    },
+                    allButtonsEnabled: true,
+                    inputDateFormat: '%Y-%m-%d',
+                    inputEditDateFormat: '%Y-%m-%d',
+                    enabled: true,
+                    //selected: 6, //表示以上定义button的index,从0开始
+                    // buttons: []
+                },
+                title: {
+                    text: 'AAPL Historical'
+                },
+                legend: {
+                    enabled: true
+                },
+                subtitle: {
+                    text: 'With SMA and Volume by Price technical indicators'
+                },
+                xAxis: [{
+                    // crosshair: true,
+                    type: 'datetime',
+                }],
+                tooltip: {
+                    shared: true,
+                    useHTML: true,
+                    enabled: true,
+                    // animatio
+                    borderRadius: 3,
+                    dateTimeLabelFormats: {
+                        millisecond: '%A, %b %e, %H:%M:%S.%L',
+                        second: '%A, %b %e, %H:%M:%S',
+                        minute: '%A, %b %e, %H:%M',
+                        hour: '%A, %b %e, %H:%M',
+                        day: '%A, %b %e, %Y',
+                        week: 'Week from %A, %b %e, %Y',
+                        month: '%B %Y',
+                        year: '%Y'
+                    },
+                    footerFormat: '',
+                    padding: 8,
+                    //snap: isTouchDevice ? 25 : 10,
+                    //backgroundColor: color('#f7f7f7').setOpacity(0.85).get(),
+                    borderWidth: 1,
+                    headerFormat: '<span style="font-size: 10px">{point.key}</span><br/>',
+                    pointFormat: '<span style="color:{point.color}">\u25CF</span> {series.name}: <b>{point.y}</b><br/>',
+                    shadow: true,
+                    style: {
+                        color: '#333333',
+                        cursor: 'default',
+                        fontSize: '12px',
+                        pointerEvents: 'none',
+                        whiteSpace: 'nowrap'
+                    }
+                },
+                yAxis: [{
+                    startOnTick: false,
+                    endOnTick: false,
+                    // labels: {
+                    //     format: '${value}',
+                    //     style: {
+                    //         color: Highcharts.getOptions().colors[2]
+                    //     }
+                    // },
+                    // title: {
+                    //     text: 'eth_usd',
+                    //     style: {
+                    //         color: Highcharts.getOptions().colors[2]
+                    //     }
+                    // },
+                    opposite: true,
+                    height: '60%',
+                    lineWidth: 2,
+                    resize: {
+                        enabled: true
+                    }
+                }, {
+                    // title: {
+                    //     text: 'etc_usd',
+                    //     style: {
+                    //         color: Highcharts.getOptions().colors[0]
+                    //     }
+                    // },
+                    // labels: {
+                    //     format: '{value} mm',
+                    //     style: {
+                    //         color: Highcharts.getOptions().colors[0]
+                    //     }
+                    // },
+                   top: '65%',
+                   height: '35%',
+                    offset: 1,
+                    lineWidth: 2
+                }],
+                plotOptions: {
+                    series: {
+                        compare: 'percent',
+                        showInNavigator: true
+                    }
+                },
+                scrollbar: {
+                    liveRedraw: false
+                },
+                series: [{
+                        //type: 'column',
+                        name: 'price_btc(eth)',
+                        //zIndex: 2,
+                        data: s1_price_btc_eth,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_usd(eth)',
+                        // zIndex: 2,
+                        data: s1_price_usd_eth,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_usd(btc)',
+                        // zIndex: 2,
+                        data: s2_price_usd_btc,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_btc(okex)',
+                        // zIndex: 2,
+                        data: s3_price_show_btc,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_eth(okex)',
+                        // zIndex: 2,
+                        data: s3_price_show_eth,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_usd(okex)',
+                        // zIndex: 2,
+                        data: s3_price_show_usdt,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_usd(show)',
+                        // zIndex: 2,
+                        data: s5_price_show_usdt,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_eth(show)',
+                        // zIndex: 2,
+                        data: s5_price_show_eth,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }, {
+                        //type: 'column',
+                        name: 'price_btc(show)',
+                        // zIndex: 2,
+                        data: s5_price_show_btc,
+                        dataGrouping: {
+                            enabled: false
+                        }
+                    }
+                    //, {
+                    //     type: 'column',
+                    //     name: 'Volume(eth)',
+
+                    //     id: 'volume',
+                    //     data: volume_eth,
+                    //     yAxis: 1,
+                    //     dataGrouping: {
+                    //         enabled: false
+                    //     }
+                    // }, {
+                    //     type: 'vbp',
+                    //     linkedTo: 'volume',
+                    //     dataGrouping: {
+                    //         enabled: false
+                    //     },
+
+                    //     params: {
+                    //         volumeSeriesID: 'volume'
+                    //     },
+                    //     dataLabels: {
+                    //         enabled: false
+                    //     },
+                    //     zoneLines: {
+                    //         enabled: false
+                    //     }
+                    // },
+                    // {
+                    //     type: 'sma',
+                    //     zIndex: 1,
+                    //     dataGrouping: {
+                    // 				enabled: false
+                    // 		},
+                    //     marker: {
+                    //         enabled: false
+                    //     }
+                    // }
+                ]
+            });
+        }
+
+        function to_one_month() {
+            var now = new Date();
+            var year = now.getFullYear(); //getYear()+1900=getFullYear()
+            var month = now.getMonth() + 1; //0-11表示1-12月
+            var day = now.getDate();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            if (parseInt(month) < 10) {
+                month = "0" + month;
+            }
+            if (parseInt(day) < 10) {
+                day = "0" + day;
+            }
+            if (parseInt(hours) < 10) {
+                hours = "0" + hours;
+            }
+            if (parseInt(minutes) < 10) {
+                minutes = "0" + minutes;
+            }
+            if (parseInt(seconds) < 10) {
+                seconds = "0" + seconds;
+            }
+            // now =year + '-'+ month + '-' + day;
+            if (parseInt(month) == 1) { //如果是1月份，则取上一年的12月份
+                return (parseInt(year) - 1) + '-12-' + day;
+            }
+            var preSize = new Date(year, parseInt(month) - 1, 0).getDate(); //上月总天数
+            if (preSize < parseInt(day)) { //上月总天数<本月日期，比如3月的30日，在2月中没有30
+                return year + '-' + month + '-01';
+            }
+            if (parseInt(month) <= 10) {
+                return Date.parse(year + '-0' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            } else {
+                return Date.parse(year + '-' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            }
+        }
+
+        function to_three_month() {
+            var now = new Date();
+            var year = now.getFullYear(); //getYear()+1900=getFullYear()
+            var month = now.getMonth() - 1; //0-11表示1-12月
+            var day = now.getDate();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            if (parseInt(month) < 10) {
+                month = "0" + month;
+            }
+            if (parseInt(day) < 10) {
+                day = "0" + day;
+            }
+            if (parseInt(hours) < 10) {
+                hours = "0" + hours;
+            }
+            if (parseInt(minutes) < 10) {
+                minutes = "0" + minutes;
+            }
+            if (parseInt(seconds) < 10) {
+                seconds = "0" + seconds;
+            }
+            // now =year + '-'+ month + '-' + day;
+            if (parseInt(month) == 1) { //如果是1月份，则取上一年的12月份
+                return (parseInt(year) - 1) + '-12-' + day;
+            }
+            var preSize = new Date(year, parseInt(month) - 1, 0).getDate(); //上月总天数
+            if (preSize < parseInt(day)) { //上月总天数<本月日期，比如3月的30日，在2月中没有30
+                return year + '-' + month + '-01';
+            }
+            if (parseInt(month) <= 10) {
+                return Date.parse(year + '-0' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            } else {
+                return Date.parse(year + '-' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            }
+        }
+
+       
+       function to_two_month() {
+            var now = new Date();
+            var year = now.getFullYear(); //getYear()+1900=getFullYear()
+            var month = now.getMonth() -0; //0-11表示1-12月
+            var day = now.getDate();
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            if (parseInt(month) < 10) {
+                month = "0" + month;
+            }
+            if (parseInt(day) < 10) {
+                day = "0" + day;
+            }
+            if (parseInt(hours) < 10) {
+                hours = "0" + hours;
+            }
+            if (parseInt(minutes) < 10) {
+                minutes = "0" + minutes;
+            }
+            if (parseInt(seconds) < 10) {
+                seconds = "0" + seconds;
+            }
+            // now =year + '-'+ month + '-' + day;
+            if (parseInt(month) == 1) { //如果是1月份，则取上一年的12月份
+                return (parseInt(year) - 1) + '-12-' + day;
+            }
+            var preSize = new Date(year, parseInt(month) - 1, 0).getDate(); //上月总天数
+            if (preSize < parseInt(day)) { //上月总天数<本月日期，比如3月的30日，在2月中没有30
+                return year + '-' + month + '-01';
+            }
+            if (parseInt(month) <= 10) {
+                return Date.parse(year + '-0' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            } else {
+                return Date.parse(year + '-' + (parseInt(month) - 1) + '-' + day + " " + hours + ':' + minutes + ':' +
+                    seconds);
+            }
+        }
+       function to_getOne_Year(type, dates) {
+            var dd = new Date();
+            var n = dates || 0;
+            var year = dd.getFullYear() + Number(n);
+            var hours = dd.getHours();
+            var minutes = dd.getMinutes();
+            var seconds = dd.getSeconds();
+            if (type == "s") {
+                var day = Date.parse(year + "-01-01" + " " + hours + ':' + minutes + ':' + seconds);
+            };
+            if (type == "e") {
+                var day = Date.parse(year + "-12-31" + " " + hours + ':' + minutes + ':' + seconds);
+            };
+            if (!type) {
+                var day = Date.parse(year + "-01-01/" + year + "-12-31" + " " + hours + ':' + minutes + ':' + seconds);
+            };
+            return day;
+        };
+
+        function timestampToTime(timestamp) {
+            var date = new Date(timestamp * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            var Y = date.getFullYear() + '-';
+            var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+            var D = date.getDate() + ' ';
+            var h = date.getHours() + ':';
+            var m = date.getMinutes();
+            var s = date.getSeconds();
+            return Y + M + D + h + m;
+        }
+    </script>
+</body>
+
+</html>

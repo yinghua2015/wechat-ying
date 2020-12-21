@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Gate.io - The Gate of Blockchain Assets Exchange</title>
+
+    <meta name="description"
+        content="Gate.io is a bitcoin exchange platform which supports BTC, LTC, Ethereum, Qtum and more blockchain assets trading. ">
+    <meta name="keywords"
+        content="Bitcoin, BTC, litecoin, LTC, Ethereum, Qtum, NEO, tokens, bitcoin exchange, bitcoin trading ">
+    <meta name="format-detection" content="telephone=no">
+    <!--[if lte IE 9]><script type="text/javascript">location.href = '/update.html';</script><![endif]-->
+    <link href="/css/style.css?v=1553512463" rel="stylesheet">
+    <link href="/dynamic_css/dynamic_fixed?v=1541483474" rel="stylesheet">
+    <link href="/css/coins_16.css?v=1554105812" rel="stylesheet">
+    <link href="/css/coins_32.css?v=1554105812" rel="stylesheet">
+
+
+
+    <link href="/css/lang_fixed/en_fixed.css?v=1553508995" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="120x120" href="/images/apple-touch-icon-120x120.png" />
+    <script>
+        var g_lang = 'en',
+            nickName = '',
+            isDebug = '';
+    </script>
+    <script src="/js/jquery-1.8.2.min.js"></script>
+    <script src="/js/jquery.common.tools.js?v=1553508995"></script>
+    <script src="/js/lang/lang_en.js?v=1554105283"></script>
+    <!-- Google Tag Manager -->
+    <script>
+        (function (w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                '//www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-W25ZXJV');
+    </script>
+    <!-- End Google Tag Manager -->
+</head>
+
+<body class="en-body ">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="http://www.googletagmanager.com/ns.html?id=GTM-W25ZXJV" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="header clearfix">
+        <div class="top-up">
+            <div class="top-con">
+                <div class="qqtel">
+                    <div id="callService" class="ask_ans">
+                        <p>
+                            <i class="serv-icon tico"><img src="/images/serv-icon.svg" alt="Live Support" /></i>
+                            <span>Live Support<em class="caret"></em></span>
+                        </p>
+                        <ul>
+                            <li id="callNow" onclick="unLoginTip(1);">Talk to admin</li>
+                            <li><a href="/zendesk" target="_blank">Submit a ticket</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <ul class="login_lan">
+                    <li class="toplogin"><a href="/signup">Sign up&nbsp;</a>|&nbsp; </li>
+                    <li class="toplogin" id="toplogin"><a href="/login">Log in</a></li>
+
+                    <li class="lang-option">
+                        <span>
+                            English </span>
+                        <i class="caret"></i>
+                        <div class="more-lan almost-expect-lan">
+                            <div class="lang_sort">
+                                <a href="/lang/cn" class="lang_cn"><span class="language_flag_cn"></span>简体中文</a>
+                                <a href="/lang/tw" class="lang_tw"><span class="language_flag_tw"></span>繁体中文</a>
+                            </div>
+                            <div class="lang_sort">
+                                <a href="/lang/en" class="lang_en"><span class="language_flag_en"></span>English</a>
+                                <a href="/lang/kr" class="lang_kr"><span class="language_flag_kr"></span>한국어</a>
+                            </div>
+                            <div class="lang_sort">
+                                <a href="/lang/vn" class="lang_vn"><span class="language_flag_vn"></span>Tiếng Việt</a>
+                                <a href="/lang/es" class="lang_es"><span class="language_flag_es"></span>Español</a>
+                            </div>
+                            <div class="lang_sort">
+                                <a href="/lang/ru" class="lang_ru"><span class="language_flag_ru"></span>Русский
+                                    язык</a>
+                                <a href="/lang/fr" class="lang_fr"><span class="language_flag_fr"></span>Français</a>
+                            </div>
+                            <div class="lang_sort">
+                                <a href="/lang/de" class="lang_de"><span class="language_flag_de"></span>Deutsch</a>
+                                <a href="/lang/it" class="lang_it"><span class="language_flag_it"></span>Italiano</a>
+                            </div>
+                            <div class="lang_sort">
+                                <a href="/lang/pt" class="lang_pt"><span class="language_flag_pt"></span>Português</a>
+                            </div>
+                        </div>
+                    </li>
+
+                </ul>
+                <div id="tmBox" class="pull-right">
+                    <ul id="theme" class="clearfix">
+                        <li id="dark" data-id="0" title="Dark">☽</li>
+                        <li id="light" data-id="10" title="Light">☼</li>
+                    </ul>
+                    <ul id="darkOption" class="hide">
+                        <li id="dkGreen" data-id="1">Green (Dark)</li>
+                        <li id="dkBlue" data-id="2">Blue (Dark)</li>
+                        <li id="dkGray" data-id="3">Gray (Dark)</li>
+                    </ul>
+                    <ul id="lightOption" class="hide">
+                        <li id="lgGreen" data-id="11">Green (Light)</li>
+                        <li id="lgBlue" data-id="12">Blue (Light)</li>
+                        <li id="lgPurple" data-id="13">Purple (Light)</li>
+                    </ul>
+                </div>
+                <ul id="topLinks">
+                    <li class="top-links">
+                        <a href="/mobileapp" target="_blank">
+                            <span>Mobile APP<i class="caret"></i></span>
+                            <div class="add-dn-qr">
+                                <h3>Download APP</h3>
+                                <img src="/images/app-code.png" alt="gate.io APP">
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="top-dn">
+            <div class="logo">
+                <a href="/" target="_top">
+                    <img id="topLogo" src="/images/logo_white.svg" alt="gate.io LOGO" />
+                    <!--[if IE]><img src="/images/logo.png" alt="LOGO"/><![endif]-->
+                </a>
+            </div>
+
+            <ul class="gateio-nav clearfix">
+                <li class="">
+                    <a href="/">Home</a>
+                </li>
+
+                <li class="nav-trade ">
+                    <a href="/trade/BTC_USDT">Markets<i class="caret"></i></a>
+                    <ul id="tradeNavList" class="second-nav clearfix">
+                        <li class="sec-li">
+                            <em>USDT Markets<i class="caret"></i></em>
+                            <div class="third-box" data-id="USDT">
+                                <ul class="third-nav pop-box clearfix">
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sec-li">
+                            <em>CNYX Markets<i class="caret"></i></em>
+                            <div class="third-box" data-id="CNYX">
+                                <ul class="third-nav pop-box clearfix">
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sec-li">
+                            <em>BTC Markets<i class="caret"></i></em>
+                            <div class="third-box" data-id="BTC">
+                                <ul class="third-nav pop-box clearfix">
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sec-li">
+                            <em>ETH Markets<i class="caret"></i></em>
+                            <div class="third-box" data-id="ETH">
+                                <ul class="third-nav pop-box clearfix">
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sec-li">
+                            <em>Time-Limited<i class="caret"></i></em>
+                            <div class="third-box" data-id="LIMITED">
+                                <ul class="third-nav pop-box clearfix">
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="">
+                    <a href="/myaccount">Wallets</a>
+
+                </li>
+                <li class="">
+                    <a href="/articlelist/ann">Announcements</a>
+
+                </li>
+                <li class="">
+                    <a href="javascript:;">Help<i class="caret"></i></a>
+                    <ul class="second-nav clearfix">
+                        <li>
+                            <a href="/help">Support Center</a>
+                        </li>
+                        <li>
+                            <a href="/zendesk" target="_blank">Submit a ticket</a>
+                        </li>
+                        <li>
+                            <a href="/coins">Downloads<i class="caret"></i></a>
+                            <div class="third-box">
+                                <ul class="third-nav nav-help clearfix">
+                                    <li><a href="/mobileapp">Mobile APP</a></li>
+                                    <li><a href="http://github.com/gateio/windows_app/releases/download/v1.0.4/Gateio_Setup.exe?v=102"
+                                            target="_blank">Windows APP</a></li>
+                                    <li><a href="http://github.com/gateio/mac_app/releases/download/v1.0.2/Gate.io.dmg?v=101"
+                                            target="_blank">Mac APP</a></li>
+
+                                    <li><a href="/coins">Coin List</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="/listrequest">Listing</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div id="top_last_rate" style="display: none"></div>
+
+        </div>
+    </div>
+    <script>
+        var data_expired_leftbar = Number('');
+        var is_show_margin_page_japan = '0';
+        $(function () {
+            if (is_cn) {
+                $(".lang_cn").css("color", "#91ffe8");
+            } else if (is_tw) {
+                $(".lang_tw").css("color", "#91ffe8");
+            }
+        });
+    </script>
+    <script src="http://cdn.staticfile.org/react/16.4.0/umd/react.development.js"></script>
+    <script src="http://cdn.staticfile.org/react-dom/16.4.0/umd/react-dom.development.js"></script>
+    <script>
+        var isPC = function () {
+            var userAgentInfo = navigator.userAgent.toLowerCase();
+            var Agents = new Array("android", "iphone", "symbianOS", "windows phone", "ipad", "ipod");
+            var flag = true;
+            for (var v = 0; v < Agents.length; v++) {
+                if (userAgentInfo.indexOf(Agents[v]) > 0) {
+                    flag = false;
+                    break;
+                }
+            }
+            return flag;
+        }
+
+        var pointPhoneVersion = ''
+
+        function addCssByLink(url) {
+            var doc = document;
+            var link = doc.createElement("link");
+            link.setAttribute("rel", "stylesheet");
+            link.setAttribute("type", "text/css");
+            link.setAttribute("href", url);
+
+            var heads = doc.getElementsByTagName("head");
+            if (heads.length)
+                heads[0].appendChild(link);
+            else
+                doc.documentElement.appendChild(link);
+        }
+        if (location.search.match(/is_phone/, 'ig') || !isPC()) {
+            addCssByLink('/css/point_phone.css?v=' + pointPhoneVersion)
+        }
+    </script>
+    <script>
+        const point_package = JSON.parse(
+            '[{"num":1,"start_time":"20190408","end_time":"20190414","point":100,"sell":100,"gt":250,"time_factor":0.02},{"num":2,"start_time":"20190408","end_time":"20190414","point":1000,"sell":950,"gt":2375,"time_factor":0.02},{"num":3,"start_time":"20190408","end_time":"20190414","point":10000,"sell":9200,"gt":23000,"time_factor":0.02},{"num":4,"start_time":"20190408","end_time":"20190414","point":100000,"sell":90000,"gt":225000,"time_factor":0.02}]'
+            );
+        const ad_point_package = JSON.parse('0');
+        const is_show_timer = '1';
+        const point_next_time = 1554696000000;
+        const point_lang = 'en';
+    </script>
+
+
+
+    <link rel="stylesheet" href="/css/point.css?=1554105283">
+
+    <div id='point'>
+
+    </div>
+
+    <script src='/js/point/point.js?v=1554105284'></script>
+    <div class="footer">
+        <div class="fkicon">
+            <ul class="clearfix">
+                <li>
+                    <a href="/zendesk" target="_blank">
+                        <div class="fico fc5"></div>
+                        <div class="fkcont">
+                            <div class="ftel">Submit a ticket</div>
+                            <div class="ftelnum">Submit a request</div>
+                        </div>
+                    </a>
+
+                </li>
+                <li><a href="http://twitter.com/gate_io" target="_blank" title="Twitter">
+                        <div class="fico fc-twi"></div>
+                        <div class="fkcont">
+                            <div class="ftel">Twitter</div>
+                            <div class="ftelnum">twitter.com/gate_io</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="http://t.me/gateio" target="_blank" title="Telegram">
+
+
+                        <div class="fico fc3"></div>
+                    </a></li>
+                <li><a href="http://www.instagram.com/gate.io/" target="_blank" title="Instagram">
+                        <div class="fico fc7"></div>
+                    </a></li>
+                <li><a href="mailto:support@mail.gate.io" target="_blank" title="Email">
+                        <div class="fico fc6"></div>
+                        <div class="fkcont">
+                            <div class="ftel">Email</div>
+                            <div class="ftelnum">Email us</div>
+                        </div>
+                    </a>
+                </li>
+                <li><a href="http://github.com/gateio" target="_blank" title="Github">
+                        <div class="fico fc4"></div>
+                        <div class="fkcont">
+                            <div class="ftel">Github</div>
+                            <div class="ftelnum">gate.io Github</div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+            <div class="fxts">
+                <p style="text-align: center"><i>!</i>Please be aware of the high risks in the crypto-currency trading
+                    markets due to the price fluctuation and other factors.</p>
+            </div>
+        </div>
+
+        <div class="fnav">
+            <div class="fnavcon">
+                <ul>
+                    <li class="fnav_list">
+                        <ul>
+                            <li><a href="/page/contacts">Contact us</a></li>
+                            <li><a href="/fee">Fee</a></li>
+                            <li><a href="/api2">API Documents</a></li>
+                            <li><a href="/docs/agreement.pdf">User Agreement</a></li>
+                            <li><a href="/articlelist/ann">Announcements</a></li>
+                            <li><a href="/listrequest">Listing</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div class="tail">
+                <div id="bottomServTime">Current server time：<b>2019-04-04 15:26:12 UTC+8</b></div>
+                <span>Gate.io Copyright © 2019 Gate Technology Incorporated. All Rights Reserved.</span>
+                <div class="vol-all">
+                    <span>Volume:</span>
+                    <span> USDT : $<span id="usdtAll"></span> </span>
+                    <span> BTC : ฿<span id="btcAll"></span> </span>
+                    <span> LTC : Ł<span id="ltcAll"></span> </span>
+                    <span> ETH : E<span id="ethAll"></span> </span>
+                    <span> Contracts : $<span id="contractAll"></span> </span>
+                </div>
+            </div>
+        </div>
+        <div id="line_status_tip"></div>
+    </div>
+
+
+
+
+
+    <script>
+        if ('http:' !== document.location.protocol) //force user to use https
+            window.location = '//' + window.location.hostname + window.location.pathname;
+
+        themeLight = Number('') > 9 || '' === '';
+        themedark_version = '1548641606';
+        is_login = nickName !== '';
+        is_phone = '' === '1';
+        is_s = '' === '1';
+        show_user_notice = '';
+        tier_next_progress = '';
+        USDT_fiat_rate = '';
+        pageName = '';
+        usdt_all_vol = '';
+        btc_all_vol = '';
+        ltc_all_vol = '';
+        eth_all_vol = '';
+        contract_all_vol = '';
+        notIe = '1';
+        notEdge = '1';
+        notAcc = '1';
+        loan_market_curr_a = '';
+        loan_market_curr_b = '';
+        document.onreadystatechange = function (e) {
+            if (document.readyState === 'complete') {
+                setTimeout(function () {
+
+                    var stats_url = "http://stats.gateio.co/stats/";
+                    var login = (nickName !== '') ? 1 : 0,
+                        url = location.href,
+                        referer = document.referrer,
+                        new_user = ('' === '1') ? 1 : 0,
+                        new_uid = '',
+                        source_str = url + "^site=en^login=" + login + "^ref=" + referer + "^newuser=" +
+                        new_user + "^newuid=" + new_uid,
+                        url2 = window.btoa(encodeURIComponent(source_str)),
+                        params = url2.replace(/=/g, '-'),
+                        hm = document.createElement("img");
+
+                    hm.style.display = 'none';
+                    hm.src = stats_url + params;
+                    document.body.appendChild(hm);
+
+                    function gtag() {
+                        dataLayer.push(arguments)
+                    }! function () {
+                        var a = document.createElement("script");
+                        a.src = "http://www.googletagmanager.com/gtag/js?id=UA-1833997-38", a.async = !0;
+                        var t = document.getElementsByTagName("script")[0];
+                        t.parentNode.insertBefore(a, t)
+                    }(), window.dataLayer = window.dataLayer || [], gtag("js", new Date), gtag("set", {
+                        user_id: "35.201.245.232"
+                    }), gtag("config", "UA-1833997-38");
+                }, 1000)
+            }
+        }
+    </script>
+
+
+    <script src="/js/footer.js?v=1552053511"></script>
+
+</body>
+
+</html>
